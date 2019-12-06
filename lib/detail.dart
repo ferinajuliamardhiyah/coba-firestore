@@ -16,9 +16,10 @@ class DetailScreen extends StatelessWidget {
       body: Padding(
         padding: EdgeInsets.all(10.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('${todo.id}'),
-            Text('${todo.address}'),
+            Text('id: ${todo.id}',textAlign: TextAlign.start),
+            Text('address: ${todo.address}'),
           ],
         )
       ),

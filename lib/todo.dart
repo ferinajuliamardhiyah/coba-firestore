@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 
 class Todo {
@@ -7,8 +5,7 @@ class Todo {
   String name;
   String address;
   bool favorite = false;
-  File image;
-  String url;
+  String imageurl;
 
   Todo(this.name);
   Todo.fromJson(Map<String, dynamic> json)
@@ -16,8 +13,7 @@ class Todo {
         name = json['name'],
         address = json['address'],
         favorite = json['favorite'],
-        image = json['image'],
-        url = json['image_url'];
+        imageurl = json['image_url'];
 
   static getTodos() async {
     var result =
@@ -30,7 +26,7 @@ class Todo {
 
   static postTodo(data) async {
     var response = await Dio()
-        .post('https://address-book-exp-api.herokuapp.com/users', data: data);
+        .post('https://address-book-exp-api.herokuapp.com/users', data: await data);
     return response;
   }
 

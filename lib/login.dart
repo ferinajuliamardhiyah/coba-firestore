@@ -1,5 +1,6 @@
-import 'package:cobacobi/dashboard.dart';
+import 'package:cobacobi/pages.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:validate/validate.dart';
 
 void main() => runApp(MyApp());
@@ -44,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     return null;
   }
-  submit(BuildContext context) {
+  submit(BuildContext context) async {
     // First validate form.
     if (this._formKey.currentState.validate()) {
       _formKey.currentState.save(); // Save our form now.
@@ -59,15 +60,20 @@ class _LoginPageState extends State<LoginPage> {
           action: SnackBarAction(
             label: 'Undo',
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ToDoScreen()));
               // Some code to undo the change.
             },
           ),
         );
         // Find the Scaffold in the widget tree and use
         // it to show a SnackBar.
+
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setString('token', _data.email);
+
         _scaffoldKey.currentState.showSnackBar(snackBar);
-        Navigator.pushReplacementNamed(context, "/dashboard");
+        Navigator.pushReplacementNamed(context, '/home');
+        
+
       } else {
         final snackBar = SnackBar(
           content: Text('Incorrect Email/Password'),

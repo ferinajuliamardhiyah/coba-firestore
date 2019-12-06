@@ -1,10 +1,11 @@
-import 'package:cobacobi/add.dart';
-import 'package:cobacobi/detail.dart';
-import 'package:cobacobi/edit.dart';
+import 'dart:async';
+import 'package:cobacobi/pages.dart';
 import 'package:cobacobi/todo.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class ToDoScreen extends StatefulWidget {
+  const ToDoScreen();
   _ToDoScreenState createState() => _ToDoScreenState();
 }
 
@@ -19,6 +20,7 @@ class _ToDoScreenState extends State<ToDoScreen> {
       todos = response;
       loading = false;
     });
+    
   }
 
   @override
@@ -27,13 +29,22 @@ class _ToDoScreenState extends State<ToDoScreen> {
     getTodos();
   }
 
-  handleTodo(todo) {
-    Todo.postTodo({'name': todo, 'favorite': false});
+  Future<FormData> photo({path, name}) async {
+    return FormData.fromMap({
+      "photo": await MultipartFile.fromFile(path, filename: "user-photo"),
+      "name": name,
+      "favorite": false,
+    });
+  }
+
+  handleTodo(todo, path) {
+    Todo.postTodo(photo(name: todo, path: path));
     getTodos();
   }
 
   editTodos(Todo todo, index) {
     Todo.editTodo({"name": todo.name}, todo.id);
+    getTodos();
   }
 
   checkList(val, index) {
@@ -58,10 +69,10 @@ class _ToDoScreenState extends State<ToDoScreen> {
       for (var i in todos) {
         if (i.favorite) {
           Todo.removeTodo(i.id);
-          getTodos();
         }
       }
-      allCheck=false;
+      allCheck = false;
+      getTodos();
     });
   }
 
@@ -79,120 +90,148 @@ class _ToDoScreenState extends State<ToDoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('To Do List'),
-        ),
-        body: Column(children: <Widget>[
-          Container(
-              child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              BuildButtonComponent(
-                  Colors.green, Icons.check, 'Done', jumlahChecked()),
-              BuildButtonComponent(Colors.orange, Icons.calendar_today, 'Todo',
-                  todos.length - jumlahChecked()),
-              BuildButtonComponent(
-                  Colors.blue, Icons.person_outline, 'Total', todos.length)
-            ],
-          )),
-          Container(
-              child: todos.length == 0
-                  ? Text('No Data(s) Yet. Please Add New One',
-                      style: TextStyle(fontSize: 20))
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                Text('Check All'),
-                                Checkbox(
-                                  value: allCheck,
-                                  onChanged: (bool val) {
-                                    checkListAll(val);
-                                  },
-                                ),
-                              ],
-                            ),
+    return loading == true
+          ? CircularProgressIndicator()
+    // Scaffold(
+    //   appBar: AppBar(
+    //     title: Text('To Do List'),
+    //   ),
+    //   body: 
+      : Column(children:
+       <Widget>[
+        Container(
+            child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            BuildButtonComponent(
+                Colors.green, Icons.check, 'Done', jumlahChecked()),
+            BuildButtonComponent(Colors.orange, Icons.calendar_today, 'Todo',
+                todos.length - jumlahChecked()),
+            BuildButtonComponent(
+                Colors.blue, Icons.person_outline, 'Total', todos.length)
+          ],
+        )),
+        Container(
+            child: todos.length == 0
+                ? Text('No Data(s) Yet. Please Add New One',
+                    style: TextStyle(fontSize: 20))
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                        Row(
+                            children: <Widget>[
+                              Text('Check All'),
+                              Checkbox(
+                                value: allCheck,
+                                onChanged: (bool val) {
+                                  checkListAll(val);
+                                },
+                              ),
+                            ],
                           ),
-                          RaisedButton.icon(
-                              color: Colors.white,
-                              icon: Icon(Icons.delete, color: Colors.red),
-                              label: Text('Delete All Checked',
-                                  style: TextStyle(color: Colors.red)),
-                              onPressed: () {
-                                deleteAll();
-                              })
-                        ])),
-          Expanded(
-            child: ListView.builder(
-                itemCount: todos.length,
-                itemBuilder: (context, index) {
-                  return Dismissible(
-                      key: ValueKey(todos[index]),
-                      onDismissed: (direction) {
-                        Todo.removeTodo(todos[index].id);
-                        todos.removeAt(index);
-                        getTodos();
-                      },
-                      child: Card(
-                          child: ListTile(
-                        leading: Checkbox(
-                          value: todos[index].favorite,
-                          onChanged: (bool newValue) {
-                            todos[index].favorite = newValue;
-                            checkList(newValue, index);
-                            if (todos[index].favorite == false) {
-                              allCheck = false;
-                            }
-                            var jum = 0;
-                            for (var i = 0; i < todos.length; i++) {
-                              if (todos[i].favorite == true) {
-                                jum++;
-                              }
-                            }
-                            if (jum == todos.length) {
-                              allCheck = true;
-                            }
-                          },
-                        ),
-                        title: todos[index].favorite == false
-                            ? Text(todos[index].name)
-                            : Text(todos[index].name,
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    decoration: TextDecoration.lineThrough)),
-                        onLongPress: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => EditList(
-                                      todos: todos[index],
-                                      index: index,
-                                      editTodo: editTodos)));
-                        },
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      DetailScreen(todo: todos[index])));
-                        },
-                      )));
-                }),
-          )
-        ]),
-        floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddList(handleTodo),
-                  ));
-            },
-            child: Icon(Icons.add)));
+                        RaisedButton.icon(
+                            color: Colors.white,
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            label: Text('Delete All Checked',
+                                style: TextStyle(color: Colors.red)),
+                            onPressed: () {
+                              deleteAll();
+                            })
+                      ])),
+        Expanded(
+          child:
+          ListView.builder(
+              itemCount: todos.length,
+              itemBuilder: (context, index) {
+                return Dismissible(
+                    key: ValueKey(todos[index]),
+                    onDismissed: (direction) {
+                      Todo.removeTodo(todos[index].id);
+                      todos.removeAt(index);
+                      getTodos();
+                    },
+                    child: Card(
+                        child: ListTile(
+                            leading: CircleAvatar(
+                                child: todos[index].imageurl != null
+                                    ? Image.network(todos[index].imageurl)
+                                    : Icon(Icons.image)),
+                            trailing: Checkbox(
+                              value: todos[index].favorite,
+                              onChanged: (bool newValue) {
+                                todos[index].favorite = newValue;
+                                checkList(newValue, index);
+                                if (todos[index].favorite == false) {
+                                  allCheck = false;
+                                }
+                                var jum = 0;
+                                for (var i = 0; i < todos.length; i++) {
+                                  if (todos[i].favorite == true) {
+                                    jum++;
+                                  }
+                                }
+                                if (jum == todos.length) {
+                                  allCheck = true;
+                                }
+                              },
+                            ),
+                            title: todos[index].favorite == false
+                                ? Text(todos[index].name)
+                                : Text(todos[index].name,
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        decoration:
+                                            TextDecoration.lineThrough)),
+                            onLongPress: () {
+                              Navigator.pushNamed(
+                                  context,
+                                  // MaterialPageRoute(
+                                  //     builder: (context) => EditList(
+                                  //         todos: todos[index],
+                                  //         index: index,
+                                  //         editTodo: editTodos))
+                                  Pages.Edit,
+                                  arguments: {
+                                    'todos': todos[index],
+                                    'index': index,
+                                    'editTodo': editTodos
+                                  });
+                            },
+                            onTap: () {
+                              Navigator.pushNamed(
+                                  context,
+                                  // MaterialPageRoute(
+                                  //     builder: (context) =>
+                                  //         DetailScreen(todo: todos[index]))
+                                  Pages.Detail,
+                                  arguments: {'todo': todos[index]});
+                            })));
+              })
+        )
+      ]);
+      // bottomNavigationBar: BottomAppBar(
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //     children: <Widget>[
+      //       IconButton(icon: Icon(Icons.today) , onPressed: (){}),
+      //       IconButton(icon: Icon(Icons.people), onPressed: (){})
+      //     ],
+      //   ),
+      //   shape: CircularNotchedRectangle(),
+      //   color: Colors.white,
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      // floatingActionButton: FloatingActionButton(
+      //     onPressed: () {
+      //       Navigator.pushNamed(
+      //           context,
+      //           // MaterialPageRoute(
+      //           //   builder: (context) => AddList(handleTodo),
+      //           // )
+      //           Pages.Add,
+      //           arguments: {'handleTodo': handleTodo});
+      //     },
+      //     child: Icon(Icons.add))
   }
 }
 
