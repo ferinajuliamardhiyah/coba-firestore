@@ -1,45 +1,47 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class Todo {
-  int id;
-  String name;
-  String address;
-  bool favorite = false;
-  String imageurl;
+  // var id;
+  String title;
+  String description;
+  bool status;
+  //String imageurl;
 
-  Todo(this.name);
-  Todo.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
-        name = json['name'],
-        address = json['address'],
-        favorite = json['favorite'],
-        imageurl = json['image_url'];
+  Todo(this.title, this.description, this.status);
+
+  Todo.fromJSON(Map<String,dynamic> response)
+      : title = response['title'],
+        description = response['description'],
+        status = response['status'];
 
   static getTodos() async {
-    var result =
-        await Dio().get('https://address-book-exp-api.herokuapp.com/users');
-    List<Todo> todos = (result.data['data'] as List)
-        .map((test) => Todo.fromJson(test))
-        .toList();
-    return todos;
+    final FirebaseApp app = await FirebaseApp.configure(
+    name: 'Todo-App',
+    options: const FirebaseOptions(
+      googleAppID: '1:928426933593:android:6984188d60f9f636b26048',
+      gcmSenderID: '928426933593',
+      apiKey: 'AIzaSyB3SioBGTa8vlu9hMHPwA-yY8VM_2H518k',
+      projectID: 'todo-app-83a1d',
+    ),
+  );
+  final Firestore firestore = Firestore(app: app);
+  return firestore;
   }
 
-  static postTodo(data) async {
-    var response = await Dio()
-        .post('https://address-book-exp-api.herokuapp.com/users', data: await data);
-    return response;
-  }
+  // static postTodo(data) async {
+    
+    
+  //   };
 
-  static editTodo(data, id) async {
-    var response = await Dio().patch(
-        'https://address-book-exp-api.herokuapp.com/users/$id',
-        data: data);
-    return response;
-  }
+  // static editTodo(data, id) async {
+  //   var response = await
+  //   return response;
+  // }
 
-  static removeTodo(id) async {
-    var response = await Dio()
-        .delete('https://address-book-exp-api.herokuapp.com/users/$id');
-    return response;
-  }
+  // static removeTodo(id) async {
+    
+  //   return response;
+  // }
 }

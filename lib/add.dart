@@ -17,31 +17,31 @@ class AddListState extends State<AddList> {
 
   AddListState(this.handleTodo);
 
-  CameraDescription firstCamera;
-  String path;
+  // CameraDescription firstCamera;
+  // String path;
 
-  final descriptionController = TextEditingController();
+  // final descriptionController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    getCamera();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   getCamera();
+  // }
 
-  getCamera() async {
-    final cameras = await availableCameras();
-    setState(() {
-      firstCamera = cameras.first;
-    });
-  }
+  // getCamera() async {
+  //   final cameras = await availableCameras();
+  //   setState(() {
+  //     firstCamera = cameras.first;
+  //   });
+  // }
 
-  navigateAndGetPhoto() async {
-    final result = await Navigator.pushNamed(context, Pages.Camera,
-        arguments: {'camera': firstCamera});
-    setState(() {
-      path = result;
-    });
-  }
+  // navigateAndGetPhoto() async {
+  //   final result = await Navigator.pushNamed(context, Pages.Camera,
+  //       arguments: {'camera': firstCamera});
+  //   setState(() {
+  //     path = result;
+  //   });
+  // }
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,29 +50,29 @@ class AddListState extends State<AddList> {
           children: <Widget>[
             Container(
               child: TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(helperText: 'Tuliskan Tugas Baru'),
-                // onSubmitted: (val) {
-                //   handleTodo(val);
-                //   Navigator.pop(context);
-                // },
+                //controller: descriptionController,
+                decoration: InputDecoration(helperText: 'Tuliskan Todo Baru'),
+                onSubmitted: (val) {
+                  handleTodo(val);
+                  Navigator.pop(context);
+                },
               ),
             ),
-            Container(
-              child: path != null
-              ? Image.file(File(path))
-              : IconButton(
-                icon: Icon(Icons.camera_enhance),
-                onPressed: navigateAndGetPhoto,
-              )
-            ),
-            RaisedButton(
-              onPressed: (){
-                handleTodo(descriptionController.text, path);
-                Navigator.pop(context);
-              },
-              child: Text('Add Todo User'),
-            )
+            // Container(
+            //   child: path != null
+            //   ? Image.file(File(path))
+            //   : IconButton(
+            //     icon: Icon(Icons.camera_enhance),
+            //     onPressed: navigateAndGetPhoto,
+            //   )
+            // ),
+            // RaisedButton(
+            //   onPressed: (){
+            //     handleTodo(descriptionController.text, path);
+            //     Navigator.pop(context);
+            //   },
+            //   child: Text('Add Todo User'),
+            // )
           ]
         ));
   }

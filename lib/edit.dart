@@ -2,11 +2,12 @@ import 'package:cobacobi/todo.dart';
 import 'package:flutter/material.dart';
 
 class EditList extends StatelessWidget {
-  final Todo todos;
+  final String title;
   final index;
   final editTodo;
+  final documentID;
 
-  EditList({Key key, @required this.todos, this.index, this.editTodo})
+  EditList({Key key, @required this.title, this.index, this.editTodo, this.documentID})
       : super(key: key);
 
   @override
@@ -15,10 +16,9 @@ class EditList extends StatelessWidget {
       appBar: AppBar(title: Text('Edit List')),
       body: Container(
           child: TextFormField(
-        initialValue: todos.name,
+        initialValue: title,
         onFieldSubmitted: (val) {
-          Todo tu = Todo(val);
-          editTodo(tu, index);
+          editTodo(val, index, documentID);
           Navigator.pop(context);
         },
       )),

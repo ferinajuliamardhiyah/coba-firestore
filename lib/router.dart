@@ -29,14 +29,15 @@ class Router {
        return _buildRoute(settings, AddList(arguments['handleTodo']));
       case Pages.Edit:
        return _buildRoute(settings, EditList(
-         todos: arguments['todos'],
+         title: arguments['title'],
          index: arguments['index'],
          editTodo: arguments['editTodo'],
+         documentID : arguments['documentID']
        ));
       case Pages.Detail:
-       return _buildRoute(settings, DetailScreen(todo: arguments ['todo']));
-      case Pages.Camera:
-       return _buildRoute(settings, TakePictureScreen(camera: arguments['camera']));
+       return _buildRoute(settings, DetailScreen(description: arguments ['description'], title: arguments['title'],));
+      // case Pages.Camera:
+      //  return _buildRoute(settings, TakePictureScreen(camera: arguments['camera']));
       default:
       return null;
     }

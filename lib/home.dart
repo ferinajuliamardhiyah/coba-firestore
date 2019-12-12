@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cobacobi/dashboard.dart';
 import 'package:cobacobi/pages.dart';
 import 'package:cobacobi/profile.dart';
@@ -14,7 +15,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   static const List<Widget> _widgetChoices = <Widget>[
     ToDoScreen(),
-    ProfileScreen(),
     ProfileScreen()
   ];
 
@@ -25,16 +25,16 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<FormData> photo({path, name}) async {
-    return FormData.fromMap({
-      "photo": await MultipartFile.fromFile(path, filename: "user-photo"),
-      "name": name,
-      "favorite": false,
-    });
-  }
+  // Future<FormData> photo({path, name}) async {
+  //   return FormData.fromMap({
+  //     "photo": await MultipartFile.fromFile(path, filename: "user-photo"),
+  //     "name": name,
+  //     "favorite": false,
+  //   });
+  // }
 
-  handleTodo(todo, path) {
-    Todo.postTodo(photo(name: todo, path: path));
+  handleTodo(todo) {
+    Firestore.instance.collection('todos').document().setData({"title": todo, "description": todo,"status": false});
   }
 
   // editTodos(Todo todo, index) {
@@ -109,15 +109,13 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text('To Do List'),
       ),
       body: Center(
-        child: _widgetChoices.elementAt(_selectedIndex),
-      ),
+        child: _widgetChoices.elementAt(_selectedIndex)),
       bottomNavigationBar: BottomAppBar(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             _buttonNav(0, Icons.today),
             _buttonNav(1, Icons.person),
-            _buttonNav(2, Icons.people)
           ],
         ),
         shape: CircularNotchedRectangle(),
